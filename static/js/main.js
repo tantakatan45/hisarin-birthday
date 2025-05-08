@@ -9,22 +9,24 @@ let userName = '';         // ユーザー名
 let quizMode = 'normal';   // クイズモード（normal, challenge, relax）
 let timer;                 // タイマーID
 let timeRemaining;         // 残り時間
-let timeLimit = 30;        // 制限時間（秒）
+let timeLimit = 45;        // 制限時間（秒）- 全問45秒に設定
 let lastChapter = "";      // 最後に表示した章
 let usedHintOnCurrentQuestion = false; // 現在の問題でヒントを使ったか
 let completedChapters = new Set(); // 完了した章を記録
-let dailyChallengeMode = false;    // 日替わりチャレンジモードかどうか
 let userAnswers = [];      // ユーザーの回答を記録
+let alertShown = false;    // 30秒アラートが表示されたか
 
 // モーダル
 let hintModal;
 let shareModal;
+let adminModal;
 
 // DOMが読み込まれたら初期化
 document.addEventListener('DOMContentLoaded', () => {
     // モーダルの初期化
     hintModal = new bootstrap.Modal(document.getElementById('hint-modal'));
     shareModal = new bootstrap.Modal(document.getElementById('share-modal'));
+    adminModal = new bootstrap.Modal(document.getElementById('admin-modal'));
     
     // クイズデータの取得
     fetch('/quiz')
@@ -47,22 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // スタートボタンのイベントリスナー
     document.getElementById('start-button').addEventListener('click', () => {
         startQuiz();
-    });
-    
-    // 日替わりチャレンジボタン
-    document.getElementById('daily-challenge-button').addEventListener('click', () => {
-        dailyChallengeMode = true;
-        fetch('/daily_challenge')
-            .then(response => response.json())
-            .then(data => {
-                quizData = data;
-                startQuiz();
-            })
-            .catch(error => {
-                console.error('Error fetching daily challenge:', error);
-                alert('日替わりチャレンジの取得に失敗しました。');
-                dailyChallengeMode = false;
-            });
     });
     
     // 次の問題ボタンのイベントリスナー
@@ -123,9 +109,220 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://social-plugins.line.me/lineit/share?text=${text}`, '_blank');
     });
     
+    // 管理者ボタンのイベントリスナー
+    document.getElementById('admin-button').addEventListener('click', () => {
+        adminModal.show();
+    });
+    
+    // 管理者ログインボタン
+    document.getElementById('admin-login-button').addEventListener('click', () => {
+        const password = document.getElementById('admin-password').value;
+        if (verifyAdminPassword(password)) {
+            adminModal.hide();
+            loadAdminPanel();
+        } else {
+            alert('パスワードが正しくありません。');
+        }
+    });
+    
     // ダークモードトグルボタンを追加
     addDarkModeToggle();
 });
+
+// 管理者パスワードの検証
+function verifyAdminPassword(password) {
+    // 実際のアプリではハッシュ化したパスワードを使用するべきです
+    // ここでは単純な例として固定のパスワードを使用します
+    return password === "loveadmin123"; // このパスワードは実際のアプリでは変更してください
+}
+
+// 管理者パネルの読み込み
+function loadAdminPanel() {
+    // 現在の画面を隠す
+    document.getElementById('welcome-screen').classList.add('d-none');
+    document.getElementById('quiz-container').classList.add('d-none');
+    document.getElementById('results-screen').classList.add('d-none');
+    document.getElementById('break-screen').classList.add('d-none');
+    
+    // 管理者パネルがまだ存在しない場合は作成
+    if (!document.getElementById('admin-panel')) {
+        const adminPanel = document.createElement('div');
+        adminPanel.id = 'admin-panel';
+        adminPanel.className = 'container mt-5';
+        
+        adminPanel.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>管理者パネル</h1>
+                <button id="admin-back-button" class="btn btn-outline-secondary">戻る</button>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">回答結果一覧</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="admin-results-table">
+                            <thead>
+                                <tr>
+                                    <th>名前</th>
+                                    <th>スコア</th>
+                                    <th>日時</th>
+                                    <th>詳細</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 結果データがここに表示される -->
+                                <tr>
+                                    <td colspan="4" class="text-center">データを読み込み中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4 d-none" id="admin-details-container">
+                <div class="card-header">
+                    <h5 class="mb-0">詳細回答データ</h5>
+                </div>
+                <div class="card-body" id="admin-details-content">
+                    <!-- 詳細データがここに表示される -->
+                </div>
+            </div>
+        `;
+        
+        document.querySelector('.container').parentNode.appendChild(adminPanel);
+        
+        // 戻るボタンのイベントリスナー
+        document.getElementById('admin-back-button').addEventListener('click', () => {
+            document.getElementById('admin-panel').classList.add('d-none');
+            showWelcomeScreen();
+        });
+    } else {
+        document.getElementById('admin-panel').classList.remove('d-none');
+    }
+    
+    // 結果データを取得して表示
+    fetchAllResults();
+}
+
+// すべての結果データを取得
+function fetchAllResults() {
+    fetch('/admin/get_all_results', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: "loveadmin123" }) // セキュリティのため実際のアプリでは改善が必要
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayAdminResults(data);
+    })
+    .catch(error => {
+        console.error('Error fetching admin results:', error);
+        document.querySelector('#admin-results-table tbody').innerHTML = 
+            '<tr><td colspan="4" class="text-center text-danger">データの取得に失敗しました</td></tr>';
+    });
+}
+
+// 管理者パネルに結果を表示
+function displayAdminResults(results) {
+    const tbody = document.querySelector('#admin-results-table tbody');
+    tbody.innerHTML = '';
+    
+    if (results.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">まだデータがありません</td></tr>';
+        return;
+    }
+    
+    // 結果を日付の新しい順にソート
+    const sortedResults = [...results].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    sortedResults.forEach((result, index) => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td>${result.username}</td>
+            <td>${result.score}/${result.total} (${result.percentage}%)</td>
+            <td>${formatDate(result.date)}</td>
+            <td>
+                <button class="btn btn-sm btn-info view-details-button" data-result-id="${index}">詳細</button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    // 詳細ボタンのイベントリスナーを追加
+    document.querySelectorAll('.view-details-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const resultId = e.target.getAttribute('data-result-id');
+            displayAdminResultDetails(sortedResults[resultId]);
+        });
+    });
+}
+
+// 管理者パネルに詳細結果を表示
+function displayAdminResultDetails(result) {
+    const detailsContainer = document.getElementById('admin-details-container');
+    const detailsContent = document.getElementById('admin-details-content');
+    
+    detailsContainer.classList.remove('d-none');
+    
+    // 基本情報の表示
+    let detailsHTML = `
+        <h4>${result.username}の回答詳細</h4>
+        <p>日時: ${formatDate(result.date)}</p>
+        <p>スコア: ${result.score}/${result.total} (${result.percentage}%)</p>
+        <hr>
+    `;
+    
+    // 詳細な回答データがある場合
+    if (result.answers && result.answers.length > 0) {
+        detailsHTML += `
+            <h5>問題ごとの回答</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>問題</th>
+                            <th>回答</th>
+                            <th>正解</th>
+                            <th>結果</th>
+                            <th>ヒント使用</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        result.answers.forEach(answer => {
+            detailsHTML += `
+                <tr>
+                    <td>Q${answer.questionId}</td>
+                    <td>${answer.userAnswer}</td>
+                    <td>${answer.correctAnswer}</td>
+                    <td>${answer.isCorrect ? '<span class="text-success">正解</span>' : '<span class="text-danger">不正解</span>'}</td>
+                    <td>${answer.usedHint ? 'あり' : 'なし'}</td>
+                </tr>
+            `;
+        });
+        
+        detailsHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        detailsHTML += `<p class="text-muted">詳細な回答データはありません。</p>`;
+    }
+    
+    detailsContent.innerHTML = detailsHTML;
+    
+    // ページをスクロールして詳細を表示
+    detailsContainer.scrollIntoView({ behavior: 'smooth' });
+}
 
 // クイズスタート
 function startQuiz() {
@@ -143,13 +340,13 @@ function startQuiz() {
     // モードに応じてタイマー設定
     switch (quizMode) {
         case 'challenge':
-            timeLimit = 20; // チャレンジモードは短め
+            timeLimit = 30; // チャレンジモードは短め
             break;
         case 'relax':
             timeLimit = 0;  // リラックスモードはタイマーなし
             break;
         default:
-            timeLimit = 30; // 通常モード
+            timeLimit = 45; // 通常モード - 45秒に設定
     }
     
     // 変数の初期化
@@ -172,6 +369,7 @@ function startQuiz() {
 function showQuestion() {
     const q = quizData[currentQuestion];
     usedHintOnCurrentQuestion = false;
+    alertShown = false; // 30秒アラートのリセット
     
     // プログレスバーの更新
     updateProgress();
@@ -232,11 +430,39 @@ function startTimer() {
         timeRemaining--;
         updateTimerDisplay();
         
+        // 残り30秒になったらアラート表示
+        if (timeRemaining === 30 && !alertShown) {
+            showTimeAlert();
+            alertShown = true;
+        }
+        
         if (timeRemaining <= 0) {
             clearInterval(timer);
             handleTimeout();
         }
     }, 1000);
+}
+
+// 30秒アラートの表示
+function showTimeAlert() {
+    // 音声効果（オプション）
+    playSound('alert');
+    
+    // 視覚的なアラート
+    const timerEl = document.getElementById('timer');
+    timerEl.classList.add('animate__animated', 'animate__flash');
+    
+    // 30秒表示のアニメーション
+    const alertOverlay = document.createElement('div');
+    alertOverlay.className = 'time-alert-overlay';
+    alertOverlay.innerHTML = '<div class="time-alert-text animate__animated animate__zoomIn">30</div>';
+    document.body.appendChild(alertOverlay);
+    
+    // 2秒後に削除
+    setTimeout(() => {
+        timerEl.classList.remove('animate__animated', 'animate__flash');
+        alertOverlay.remove();
+    }, 2000);
 }
 
 // タイマー表示の更新
@@ -247,7 +473,7 @@ function updateTimerDisplay() {
     // 残り時間に応じて色を変更
     if (timeRemaining <= 5) {
         timerEl.className = 'alert alert-danger mt-2 mb-3';
-    } else if (timeRemaining <= 10) {
+    } else if (timeRemaining <= 15) {
         timerEl.className = 'alert alert-warning mt-2 mb-3';
     } else {
         timerEl.className = 'alert alert-info mt-2 mb-3';
@@ -656,7 +882,7 @@ function saveResults(finalScore) {
         score: finalScore,
         total: quizData.length,
         mode: quizMode,
-        dailyChallenge: dailyChallengeMode,
+        answers: userAnswers,
         date: new Date().toISOString()
     };
     
@@ -741,11 +967,6 @@ function prepareShareContent() {
     const percentage = Math.round((roundedScore / quizData.length) * 100);
     
     let shareText = `「愛のクイズ」で${userName}が${percentage}%のスコアを獲得しました！`;
-    
-    if (dailyChallengeMode) {
-        shareText += '（日替わりチャレンジ）';
-    }
-    
     shareText += ' #愛のクイズ';
     
     document.getElementById('share-text').value = shareText;
@@ -776,7 +997,6 @@ function resetQuiz() {
     lastChapter = "";
     completedChapters.clear();
     userAnswers = [];
-    dailyChallengeMode = false;
     
     // すべての画面を隠す
     document.getElementById('quiz-container').classList.add('d-none');
@@ -784,6 +1004,12 @@ function resetQuiz() {
     document.getElementById('break-screen').classList.add('d-none');
     document.getElementById('explanation').classList.add('d-none');
     document.getElementById('next-button').classList.add('d-none');
+    
+    // 管理者パネルが表示されていれば隠す
+    const adminPanel = document.getElementById('admin-panel');
+    if (adminPanel) {
+        adminPanel.classList.add('d-none');
+    }
 }
 
 // ウェルカム画面の表示
@@ -933,6 +1159,9 @@ function playSound(type) {
         case 'timeout':
             audio.src = '/static/sounds/timeout.mp3';
             break;
+        case 'alert':
+            audio.src = '/static/sounds/alert.mp3';
+            break;
         case 'complete':
             audio.src = '/static/sounds/complete.mp3';
             break;
@@ -948,30 +1177,6 @@ function playSound(type) {
         console.log('Audio play was prevented:', error);
     });
 }
-
-// PWA関連の設定
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/js/service-worker.js')
-            .then(registration => {
-                console.log('ServiceWorker registered with scope:', registration.scope);
-            })
-            .catch(error => {
-                console.log('ServiceWorker registration failed:', error);
-            });
-    });
-}
-
-// 接続状態の監視
-window.addEventListener('online', () => {
-    // オンラインになったときの処理
-    showToast('インターネット接続が回復しました');
-});
-
-window.addEventListener('offline', () => {
-    // オフラインになったときの処理
-    showToast('インターネット接続が切断されました。一部機能が制限されます', 'warning');
-});
 
 // トースト通知の表示
 function showToast(message, type = 'info') {
@@ -1055,7 +1260,7 @@ function showTutorial() {
                                     <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
                                         <div class="text-center p-4">
                                             <h4>遊び方</h4>
-                                            <p>1. モードを選んでクイズをスタート</p>
+                                            <p>1. クイズをスタート（制限時間は45秒です）</p>
                                             <p>2. 問題に答えて、解説を読む</p>
                                             <p>3. 章ごとの休憩を楽しむ</p>
                                             <p>4. 結果を確認し、アチーブメントを獲得</p>

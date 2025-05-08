@@ -26,11 +26,11 @@
                         <label class="form-label">モード選択：</label>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="quiz-mode" id="mode-normal" value="normal" checked>
-                            <label class="form-check-label" for="mode-normal">通常モード</label>
+                            <label class="form-check-label" for="mode-normal">通常モード（制限時間：45秒）</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="quiz-mode" id="mode-challenge" value="challenge">
-                            <label class="form-check-label" for="mode-challenge">チャレンジモード（時間制限厳しめ）</label>
+                            <label class="form-check-label" for="mode-challenge">チャレンジモード（制限時間：30秒）</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="quiz-mode" id="mode-relax" value="relax">
@@ -41,7 +41,10 @@
             </div>
             
             <button id="start-button" class="btn btn-lg btn-primary animate__animated animate__pulse animate__infinite">クイズを始める</button>
-            <button id="daily-challenge-button" class="btn btn-lg btn-outline-success ms-2">今日のチャレンジ</button>
+            
+            <div class="mt-5">
+                <button id="admin-button" class="btn btn-sm btn-outline-secondary">管理者用</button>
+            </div>
         </div>
         
         <!-- クイズコンテナ -->
@@ -186,6 +189,53 @@
             </div>
         </div>
     </div>
+
+    <!-- モーダル：管理者ログイン -->
+    <div class="modal fade" id="admin-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">管理者ログイン</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="admin-password" class="form-label">パスワード:</label>
+                        <input type="password" id="admin-password" class="form-control" placeholder="管理者パスワードを入力">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="admin-login-button">ログイン</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSS: 30秒アラートのスタイル -->
+    <style>
+        .time-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        
+        .time-alert-text {
+            font-size: 12rem;
+            font-weight: bold;
+            color: #ff5252;
+            text-shadow: 0 0 20px rgba(255, 82, 82, 0.8);
+            opacity: 0.8;
+        }
+    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

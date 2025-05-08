@@ -8,6 +8,9 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "love_quiz_secret_key"  # セッション用の秘密鍵
 
+# 管理者パスワード（実際のアプリでは環境変数などから取得するべき）
+ADMIN_PASSWORD = "loveadmin123"
+
 # クイズデータの読み込み（JSONファイル）
 QUIZ_FILE = os.path.join(os.path.dirname(__file__), 'quiz_data.json')
 
@@ -124,6 +127,8 @@ def save_result():
     username = data.get('username', 'ゲスト')
     score = data.get('score', 0)
     total = data.get('total', 0)
+    mode = data.get('mode', 'normal')
+    answers = data.get('answers', [])
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     # ユーザー名をセッションに保存
@@ -134,13 +139,17 @@ def save_result():
     if 'results' not in session:
         session['results'] = []
     
-    session['results'].append({
+    result = {
         'username': username,
         'score': score,
         'total': total,
         'percentage': round((score / total) * 100),
+        'mode': mode,
+        'answers': answers,
         'date': date
-    })
+    }
+    
+    session['results'].append(result)
     
     # アチーブメントを確認
     achievements_earned = check_achievements(username, score, total)
@@ -155,15 +164,67 @@ def get_results():
     results = session.get('results', [])
     return jsonify(results)
 
-@app.route('/daily_challenge')
-def daily_challenge():
-    # 日替わりチャレンジ - ランダムに3問選ぶ
-    if len(quiz_data) >= 3:
-        daily_questions = random.sample(quiz_data, 3)
-    else:
-        daily_questions = quiz_data
+@app.route('/admin/get_all_results', methods=['POST'])
+def admin_get_all_results():
+    # パスワード検証
+    data = request.json
+    password = data.get('password', '')
     
-    return jsonify(daily_questions)
+    if password != ADMIN_PASSWORD:
+        return jsonify({'error': '認証に失敗しました。'}), 403
+    
+    # すべての結果を返す
+    results = session.get('results', [])
+    
+    # セッションデータがない場合のテストデータ（デモ用）
+    if not results:
+        results = generate_sample_results()
+    
+    return jsonify(results)
+
+def generate_sample_results():
+    """テスト用のサンプル結果データを生成"""
+    sample_names = ["テスト太郎", "愛子", "哲学花子", "クイズ好き", "初心者さん"]
+    samples = []
+    
+    for i in range(10):
+        name = random.choice(sample_names)
+        total = len(quiz_data)
+        score = round(random.uniform(0, total) * 10) / 10
+        percentage = round((score / total) * 100)
+        
+        # ランダムな日時（過去1週間以内）
+        days_ago = random.randint(0, 7)
+        hours_ago = random.randint(0, 23)
+        date = datetime.now().replace(
+            day=datetime.now().day - days_ago,
+            hour=hours_ago,
+            minute=random.randint(0, 59)
+        ).strftime("%Y-%m-%d %H:%M:%S")
+        
+        # 回答データの生成
+        answers = []
+        for q in quiz_data:
+            is_correct = random.random() > 0.5  # 50%の確率で正解
+            answers.append({
+                'questionId': q['id'],
+                'userAnswer': q['answer'] if is_correct else random.choice([k for k in q['choices'].keys() if k != q['answer']]),
+                'correctAnswer': q['answer'],
+                'isCorrect': is_correct,
+                'usedHint': random.random() > 0.7  # 30%の確率でヒント使用
+            })
+        
+        samples.append({
+            'username': name,
+            'score': score,
+            'total': total,
+            'percentage': percentage,
+            'mode': random.choice(['normal', 'challenge', 'relax']),
+            'answers': answers,
+            'date': date
+        })
+    
+    return samples
 
 def check_achievements(username, score, total):
     # アチーブメントを確認して返す処理
@@ -183,5 +244,9 @@ def check_achievements(username, score, total):
     
     return earned
 
+
+# 変更後
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Render用の設定
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
