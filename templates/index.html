@@ -2,23 +2,192 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>愛のクイズ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">愛のクイズ</h1>
-        <div id="quiz-container" class="mb-4">
-            <h4 id="chapter-title"></h4>
-            <h5 id="chapter-subtitle" class="text-muted"></h5>
-            <p id="question-text" class="mt-3"></p>
-            <div id="choices" class="mt-3"></div>
+        <!-- ウェルカム画面 -->
+        <div id="welcome-screen" class="text-center animate__animated animate__fadeIn">
+            <h1 class="display-4 mb-4">愛のクイズへようこそ</h1>
+            <p class="lead">哲学的な「愛」について考えながら学べるクイズです。</p>
+            
+            <div class="card mb-4 mx-auto" style="max-width: 500px;">
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">あなたの名前：</label>
+                        <input type="text" id="username" class="form-control" placeholder="名前を入力（任意）">
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">モード選択：</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="quiz-mode" id="mode-normal" value="normal" checked>
+                            <label class="form-check-label" for="mode-normal">通常モード</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="quiz-mode" id="mode-challenge" value="challenge">
+                            <label class="form-check-label" for="mode-challenge">チャレンジモード（時間制限厳しめ）</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="quiz-mode" id="mode-relax" value="relax">
+                            <label class="form-check-label" for="mode-relax">リラックスモード（時間制限なし）</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="start-button" class="btn btn-lg btn-primary animate__animated animate__pulse animate__infinite">クイズを始める</button>
+            <button id="daily-challenge-button" class="btn btn-lg btn-outline-success ms-2">今日のチャレンジ</button>
         </div>
+        
+        <!-- クイズコンテナ -->
+        <div id="quiz-container" class="mb-4 d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="text-center">愛のクイズ</h1>
+                <div id="progress-container" class="text-end">
+                    <span id="progress-text"></span>
+                    <div class="progress" style="height: 10px; width: 200px;">
+                        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="timer" class="alert alert-warning mt-2 mb-3"></div>
+            
+            <div id="chapter-info" class="mb-3">
+                <h4 id="chapter-title"></h4>
+                <h5 id="chapter-subtitle" class="text-muted"></h5>
+            </div>
+            
+            <p id="question-text" class="mt-3 fs-5"></p>
+            <div id="choices" class="mt-3"></div>
+            
+            <div class="mt-3">
+                <button id="hint-button" class="btn btn-sm btn-outline-info">ヒントを見る</button>
+                <span id="hint-penalty" class="text-muted ms-2 d-none">（正解ポイントが減少します）</span>
+            </div>
+        </div>
+        
+        <!-- 解説 -->
         <div id="explanation" class="alert alert-info d-none"></div>
         <button id="next-button" class="btn btn-primary d-none">次の問題へ</button>
+        
+        <!-- 章間休憩画面 -->
+        <div id="break-screen" class="text-center my-5 d-none">
+            <h2 id="break-chapter" class="mb-4"></h2>
+            <p class="lead mb-4">少し休憩して、次の章に備えましょう。</p>
+            
+            <div class="card mb-4 mx-auto" style="max-width: 600px;">
+                <div class="card-body">
+                    <h5 class="card-title">今日の哲学</h5>
+                    <p id="break-quote" class="fst-italic mb-3"></p>
+                    <div class="progress mb-3">
+                        <div id="break-progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
+                    <div id="break-meditation" class="text-center mb-3">
+                        <p>深呼吸をして、心を落ち着かせましょう...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="continue-button" class="btn btn-success mt-3 d-none">続ける</button>
+        </div>
+        
+        <!-- 結果画面 -->
+        <div id="results-screen" class="text-center d-none">
+            <h2 class="mb-4 animate__animated animate__fadeIn">クイズ結果</h2>
+            
+            <div id="score-display" class="alert alert-success p-4 animate__animated animate__fadeIn">
+                <h3 id="final-score"></h3>
+                <p id="performance-message"></p>
+            </div>
+            
+            <div id="achievements-container" class="mb-4 d-none">
+                <h4>獲得したアチーブメント</h4>
+                <div id="achievements-list" class="d-flex flex-wrap justify-content-center gap-2">
+                    <!-- アチーブメントがここに表示される -->
+                </div>
+            </div>
+            
+            <div id="score-details" class="mb-4 animate__animated animate__fadeIn">
+                <!-- 詳細結果がここに表示される -->
+            </div>
+            
+            <div class="mb-4">
+                <button id="restart-button" class="btn btn-primary me-2">もう一度挑戦</button>
+                <button id="share-button" class="btn btn-info">結果をシェア</button>
+                <button id="home-button" class="btn btn-secondary ms-2">ホームに戻る</button>
+            </div>
+            
+            <div id="rankings-container" class="mt-5 animate__animated animate__fadeIn">
+                <h4>ランキング</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>順位</th>
+                                <th>名前</th>
+                                <th>スコア</th>
+                                <th>日時</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankings-table">
+                            <!-- ランキングデータがここに表示される -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- モーダル：ヒント -->
+    <div class="modal fade" id="hint-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ヒント</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="hint-text"></p>
+                    <p class="text-warning">※ヒントを使用すると、この問題で獲得できるポイントが減少します。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：シェア -->
+    <div class="modal fade" id="share-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">結果をシェア</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>あなたの結果:</p>
+                    <div class="input-group mb-3">
+                        <input type="text" id="share-text" class="form-control" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copy-share-text">コピー</button>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <button class="btn btn-primary" id="share-twitter">Twitter</button>
+                        <button class="btn btn-primary" id="share-facebook">Facebook</button>
+                        <button class="btn btn-success" id="share-line">LINE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

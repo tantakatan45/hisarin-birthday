@@ -1,6 +1,31 @@
 body {
     background-color: #f9f9f9;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    body.dark-mode {
+        background-color: #222;
+        color: #eee;
+    }
+    
+    body.dark-mode .card {
+        background-color: #333;
+        color: #eee;
+    }
+    
+    body.dark-mode .modal-content {
+        background-color: #333;
+        color: #eee;
+    }
+}
+
+.container {
+    max-width: 800px;
+    padding-bottom: 60px;
 }
 
 h1 {
@@ -8,31 +33,238 @@ h1 {
     color: #333;
 }
 
+/* ウェルカム画面 */
+#welcome-screen {
+    padding: 30px 0;
+}
+
+#welcome-screen h1 {
+    color: #7957d5;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* クイズ部分 */
 #chapter-title {
     font-size: 1.5rem;
     font-weight: 600;
+    color: #7957d5;
 }
 
 #chapter-subtitle {
     font-size: 1rem;
     margin-bottom: 10px;
+    font-style: italic;
 }
 
 #question-text {
     font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+#choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 #choices button {
     min-width: 200px;
     text-align: left;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
+#choices button:hover {
+    transform: translateX(5px);
+}
+
+#choices button:active {
+    transform: translateX(2px);
+}
+
+/* タイマー */
+#timer {
+    text-align: center;
+    font-weight: bold;
+    transition: background-color 0.5s ease;
+}
+
+/* 解説 */
 #explanation {
     white-space: pre-wrap;
     font-size: 1rem;
+    line-height: 1.6;
+    border-radius: 8px;
+    border-left: 5px solid #7957d5;
 }
 
+/* 次の問題へボタン */
 #next-button {
     display: block;
     margin: 20px auto;
+    padding: 10px 30px;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+#next-button:hover {
+    transform: scale(1.05);
+}
+
+/* 章間休憩画面 */
+#break-screen {
+    padding: 30px 0;
+}
+
+#break-chapter {
+    color: #7957d5;
+    font-weight: 600;
+}
+
+#break-quote {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 20px 0;
+}
+
+/* 結果画面 */
+#results-screen {
+    padding: 30px 0;
+}
+
+#score-display {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#final-score {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+#performance-message {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+}
+
+/* アチーブメント */
+.achievement-card {
+    width: 150px;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.achievement-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.achievement-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.achievement-description {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* アニメーション */
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+.slide-in {
+    animation: slideIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    #chapter-title {
+        font-size: 1.3rem;
+    }
+    
+    #question-text {
+        font-size: 1.1rem;
+    }
+    
+    #choices button {
+        min-width: 100%;
+        font-size: 0.9rem;
+    }
+    
+    #progress-container {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    #progress-container .progress {
+        width: 100%;
+    }
+}
+
+/* ダークモードトグル */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #7957d5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
 }
