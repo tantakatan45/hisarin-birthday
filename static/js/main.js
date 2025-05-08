@@ -193,7 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// クイズスタート
+// main.js の以下の部分を修正
+
+// startQuiz 関数の変更部分
 function startQuiz() {
     // ユーザー名を取得
     userName = document.getElementById('username').value || 'ゲスト';
@@ -222,7 +224,9 @@ function startQuiz() {
     currentQuestion = 0;
     score = 0;
     answeredQuestions = 0;
-    lastChapter = "";
+    // 最初の章を設定（これが追加部分）
+    const firstQuestion = quizData[currentQuestion];
+    lastChapter = firstQuestion ? firstQuestion.chapter : "";
     completedChapters.clear();
     userAnswers = [];
     
@@ -234,7 +238,59 @@ function startQuiz() {
     showQuestion();
 }
 
-// 問題表示
+// 同様に startChapter 関数も修正
+window.startChapter = function(chapterTitle) {
+    // 選択された章のクイズだけをフィルタリング
+    const filteredQuizData = quizData.filter(q => q.chapter === chapterTitle);
+    
+    if (filteredQuizData.length === 0) {
+        alert('この章のクイズがありません。');
+        return;
+    }
+    
+    // クイズの開始インデックスを設定
+    currentQuestion = quizData.findIndex(q => q.id === filteredQuizData[0].id);
+    
+    // ユーザー名を取得
+    userName = document.getElementById('username').value || 'ゲスト';
+    
+    // モード選択の取得
+    const modeInputs = document.querySelectorAll('input[name="quiz-mode"]');
+    modeInputs.forEach(input => {
+        if (input.checked) {
+            quizMode = input.value;
+        }
+    });
+    
+    // モードに応じたタイマー設定
+    switch (quizMode) {
+        case 'challenge':
+            timeLimit = 30;
+            break;
+        case 'relax':
+            timeLimit = 0;
+            break;
+        default:
+            timeLimit = 45;
+    }
+    
+    // 変数の初期化
+    score = 0;
+    answeredQuestions = 0;
+    // 現在の章を設定（これが追加部分）
+    lastChapter = chapterTitle;
+    completedChapters.clear();
+    userAnswers = [];
+    
+    // ウェルカム画面を隠してクイズ画面を表示
+    document.getElementById('welcome-screen').classList.add('d-none');
+    document.getElementById('quiz-container').classList.remove('d-none');
+    
+    // 最初の問題を表示
+    showQuestion();
+};
+
+// showQuestion 関数にもチャプター表示を加える
 function showQuestion() {
     const q = quizData[currentQuestion];
     usedHintOnCurrentQuestion = false;
@@ -252,6 +308,9 @@ function showQuestion() {
     if (chapterBadge) {
         chapterBadge.textContent = q.chapter;
     }
+    
+    // 現在の章名を表示 - デバッグ用（必要に応じてコメントアウト）
+    console.log("現在の章:", q.chapter, "最後に記録した章:", lastChapter);
     
     // 問題テキストの表示
     document.getElementById('question-text').textContent = `Q${q.id}: ${q.question}`;
@@ -469,6 +528,7 @@ function handleAnswer(selected, q) {
     
     // 章を完了としてマーク
     completedChapters.add(q.chapter);
+    lastChapter = q.chapter;
 }
 
 // ヒント表示
