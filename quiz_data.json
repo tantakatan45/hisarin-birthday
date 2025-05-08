@@ -1,0 +1,382 @@
+[
+    {
+        "id": 1,
+        "chapter": "第1章",
+        "chapter_subtitle": "この場を愛せないなら、誰も愛せない。",
+        "question": "あなたがビリヤード場で一番大事にすべきだと思うのは？",
+        "choices": {
+            "A": "台",
+            "B": "キュー",
+            "C": "対戦相手",
+            "D": "空気感"
+        },
+        "answer": "A",
+        "answer_explanation": "スピノザは『神は自然、自然は神』と説いた。台は場そのもの、すべての行為と関係がこの上で成立する。台を敬わないなら、その上の技術も人間関係も無意味。",
+        "wrong_explanations": {
+            "B": "キューは自分側の道具。重要だが、場そのものを支える存在ではない。",
+            "C": "対戦相手も尊重すべきだが、そもそもその関係が生まれるのは台があってこそ。",
+            "D": "空気感は場に流れるもの。だがそれを生み出す土台は台の存在。"
+        }
+    },
+    {
+        "id": 2,
+        "chapter": "第1章",
+        "chapter_subtitle": "この場を愛せないなら、誰も愛せない。",
+        "question": "場の空気を“本当に”読めている人って、どんな人？",
+        "choices": {
+            "A": "空気を壊す勇気がある",
+            "B": "必要なときだけ声を出す",
+            "C": "誰の意見にも合わせられる",
+            "D": "逆に空気を気にしない"
+        },
+        "answer": "A",
+        "answer_explanation": "老子は『上善は水のごとし』と言った。水のような柔軟さは形を保つことではなく、必要なときに形を変え流れを作る勇気にある。合わせるだけでは新しい調和は生まれない。",
+        "wrong_explanations": {
+            "B": "必要なときだけ声を出すのは賢いが、現状を変える力はない。流れを刷新する勇気は伴わない。",
+            "C": "合わせるだけは迎合。場を読んでいるようで、自分の軸がない。",
+            "D": "気にしないのは自由だが、場に影響力を持つ立場にはなれない。"
+        }
+    },
+    {
+        "id": 3,
+        "chapter": "第1章",
+        "chapter_subtitle": "章のサブタイトル 1",
+        "question": "これはダミーの質問 3 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 3 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 3。",
+            "C": "ダミー誤答Cの解説 3。",
+            "D": "ダミー誤答Dの解説 3。"
+        }
+    },
+    {
+        "id": 4,
+        "chapter": "第1章",
+        "chapter_subtitle": "章のサブタイトル 1",
+        "question": "これはダミーの質問 4 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 4 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 4。",
+            "C": "ダミー誤答Cの解説 4。",
+            "D": "ダミー誤答Dの解説 4。"
+        }
+    },
+    {
+        "id": 5,
+        "chapter": "第1章",
+        "chapter_subtitle": "章のサブタイトル 1",
+        "question": "これはダミーの質問 5 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 5 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 5。",
+            "C": "ダミー誤答Cの解説 5。",
+            "D": "ダミー誤答Dの解説 5。"
+        }
+    },
+    {
+        "id": 6,
+        "chapter": "第2章",
+        "chapter_subtitle": "章のサブタイトル 2",
+        "question": "これはダミーの質問 6 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 6 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 6。",
+            "C": "ダミー誤答Cの解説 6。",
+            "D": "ダミー誤答Dの解説 6。"
+        }
+    },
+    {
+        "id": 7,
+        "chapter": "第2章",
+        "chapter_subtitle": "章のサブタイトル 2",
+        "question": "これはダミーの質問 7 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 7 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 7。",
+            "C": "ダミー誤答Cの解説 7。",
+            "D": "ダミー誤答Dの解説 7。"
+        }
+    },
+    {
+        "id": 8,
+        "chapter": "第2章",
+        "chapter_subtitle": "章のサブタイトル 2",
+        "question": "これはダミーの質問 8 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 8 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 8。",
+            "C": "ダミー誤答Cの解説 8。",
+            "D": "ダミー誤答Dの解説 8。"
+        }
+    },
+    {
+        "id": 9,
+        "chapter": "第2章",
+        "chapter_subtitle": "章のサブタイトル 2",
+        "question": "これはダミーの質問 9 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 9 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 9。",
+            "C": "ダミー誤答Cの解説 9。",
+            "D": "ダミー誤答Dの解説 9。"
+        }
+    },
+    {
+        "id": 10,
+        "chapter": "第2章",
+        "chapter_subtitle": "章のサブタイトル 2",
+        "question": "これはダミーの質問 10 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 10 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 10。",
+            "C": "ダミー誤答Cの解説 10。",
+            "D": "ダミー誤答Dの解説 10。"
+        }
+    },
+    {
+        "id": 11,
+        "chapter": "第3章",
+        "chapter_subtitle": "章のサブタイトル 3",
+        "question": "これはダミーの質問 11 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 11 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 11。",
+            "C": "ダミー誤答Cの解説 11。",
+            "D": "ダミー誤答Dの解説 11。"
+        }
+    },
+    {
+        "id": 12,
+        "chapter": "第3章",
+        "chapter_subtitle": "章のサブタイトル 3",
+        "question": "これはダミーの質問 12 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 12 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 12。",
+            "C": "ダミー誤答Cの解説 12。",
+            "D": "ダミー誤答Dの解説 12。"
+        }
+    },
+    {
+        "id": 13,
+        "chapter": "第3章",
+        "chapter_subtitle": "章のサブタイトル 3",
+        "question": "これはダミーの質問 13 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 13 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 13。",
+            "C": "ダミー誤答Cの解説 13。",
+            "D": "ダミー誤答Dの解説 13。"
+        }
+    },
+    {
+        "id": 14,
+        "chapter": "第3章",
+        "chapter_subtitle": "章のサブタイトル 3",
+        "question": "これはダミーの質問 14 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 14 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 14。",
+            "C": "ダミー誤答Cの解説 14。",
+            "D": "ダミー誤答Dの解説 14。"
+        }
+    },
+    {
+        "id": 15,
+        "chapter": "第3章",
+        "chapter_subtitle": "章のサブタイトル 3",
+        "question": "これはダミーの質問 15 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 15 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 15。",
+            "C": "ダミー誤答Cの解説 15。",
+            "D": "ダミー誤答Dの解説 15。"
+        }
+    },
+    {
+        "id": 16,
+        "chapter": "第4章",
+        "chapter_subtitle": "章のサブタイトル 4",
+        "question": "これはダミーの質問 16 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 16 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 16。",
+            "C": "ダミー誤答Cの解説 16。",
+            "D": "ダミー誤答Dの解説 16。"
+        }
+    },
+    {
+        "id": 17,
+        "chapter": "第4章",
+        "chapter_subtitle": "章のサブタイトル 4",
+        "question": "これはダミーの質問 17 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 17 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 17。",
+            "C": "ダミー誤答Cの解説 17。",
+            "D": "ダミー誤答Dの解説 17。"
+        }
+    },
+    {
+        "id": 18,
+        "chapter": "第4章",
+        "chapter_subtitle": "章のサブタイトル 4",
+        "question": "これはダミーの質問 18 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 18 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 18。",
+            "C": "ダミー誤答Cの解説 18。",
+            "D": "ダミー誤答Dの解説 18。"
+        }
+    },
+    {
+        "id": 19,
+        "chapter": "第4章",
+        "chapter_subtitle": "章のサブタイトル 4",
+        "question": "これはダミーの質問 19 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 19 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 19。",
+            "C": "ダミー誤答Cの解説 19。",
+            "D": "ダミー誤答Dの解説 19。"
+        }
+    },
+    {
+        "id": 20,
+        "chapter": "第4章",
+        "chapter_subtitle": "章のサブタイトル 4",
+        "question": "これはダミーの質問 20 です。",
+        "choices": {
+            "A": "選択肢A",
+            "B": "選択肢B",
+            "C": "選択肢C",
+            "D": "選択肢D"
+        },
+        "answer": "A",
+        "answer_explanation": "これはダミーの正解解説 20 です。",
+        "wrong_explanations": {
+            "B": "ダミー誤答Bの解説 20。",
+            "C": "ダミー誤答Cの解説 20。",
+            "D": "ダミー誤答Dの解説 20。"
+        }
+    }
+]
