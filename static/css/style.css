@@ -1,0 +1,38 @@
+body {
+    background-color: #f9f9f9;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1 {
+    font-weight: bold;
+    color: #333;
+}
+
+#chapter-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+#chapter-subtitle {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+#question-text {
+    font-size: 1.2rem;
+}
+
+#choices button {
+    min-width: 200px;
+    text-align: left;
+}
+
+#explanation {
+    white-space: pre-wrap;
+    font-size: 1rem;
+}
+
+#next-button {
+    display: block;
+    margin: 20px auto;
+}
