@@ -1,7 +1,6 @@
 from flask import Flask, render_template, jsonify, request, session
 import json
 import os
-import pandas as pd
 import random
 from datetime import datetime
 
@@ -11,70 +10,16 @@ app.secret_key = "love_quiz_secret_key"  # セッション用の秘密鍵
 # 管理者パスワード（実際のアプリでは環境変数などから取得するべき）
 ADMIN_PASSWORD = "loveadmin123"
 
-# クイズデータの読み込み（JSONファイル）
-QUIZ_FILE = os.path.join(os.path.dirname(__file__), 'quiz_data.json')
+# クイズデータの読み込み（直接指定されたJSONファイル）
+QUIZ_FILE = os.path.join(os.path.dirname(__file__), 'quiz_data2.json')
 
 try:
     with open(QUIZ_FILE, 'r', encoding='utf-8') as f:
         quiz_data = json.load(f)
 except FileNotFoundError:
-    # JSONファイルがない場合はCSVからデータを生成
-    try:
-        CSV_FILE = os.path.join(os.path.dirname(__file__), 'data', 'quiz_data_sample.csv')
-        
-        # CSVを読み込む
-        df = pd.read_csv(CSV_FILE)
-        
-        # JSONデータに変換
-        quiz_data = []
-        for _, row in df.iterrows():
-            quiz_item = {
-                "id": int(row['id']),
-                "chapter": row['chapter'],
-                "chapter_subtitle": row['chapter_subtitle'],
-                "question": row['question'],
-                "choices": {
-                    "A": row['choices_A'],
-                    "B": row['choices_B'],
-                    "C": row['choices_C'],
-                    "D": row['choices_D']
-                },
-                "answer": row['answer'],
-                "answer_explanation": row['answer_explanation'],
-                "wrong_explanations": {
-                    "B": row['wrong_explanations_B'],
-                    "C": row['wrong_explanations_C'],
-                    "D": row['wrong_explanations_D']
-                }
-            }
-            quiz_data.append(quiz_item)
-            
-        # JSONに保存しておく（オプション）
-        with open(QUIZ_FILE, 'w', encoding='utf-8') as f:
-            json.dump(quiz_data, f, ensure_ascii=False, indent=4)
-    except FileNotFoundError:
-        # サンプルデータも見つからない場合はデフォルトデータを使用
-        quiz_data = [
-            {
-                "id": 1,
-                "chapter": "第1章",
-                "chapter_subtitle": "愛とは何か",
-                "question": "愛について最も適切な表現は？",
-                "choices": {
-                    "A": "与えること",
-                    "B": "受け取ること",
-                    "C": "感情",
-                    "D": "運命"
-                },
-                "answer": "A",
-                "answer_explanation": "愛とは、相手から何かを得ようとするのではなく、自分から与えることから始まります。",
-                "wrong_explanations": {
-                    "B": "受け取ることは愛の結果であり、本質ではありません。",
-                    "C": "感情は愛の一部ですが、愛はそれ以上のものです。",
-                    "D": "運命は愛の始まりかもしれませんが、愛そのものではありません。"
-                }
-            }
-        ]
+    # 指定されたJSONファイルが見つからない場合は、空のリストを初期化
+    quiz_data = []
+    print(f"警告: クイズデータファイル {QUIZ_FILE} が見つかりません。")
 
 # 名言のリスト
 QUOTES = [
@@ -184,7 +129,7 @@ def admin_get_all_results():
 
 def generate_sample_results():
     """テスト用のサンプル結果データを生成"""
-    sample_names = ["テスト太郎", "愛子", "哲学花子", "クイズ好き", "初心者さん"]
+    sample_names = ["テスト太郎", "愛子", "哲学花子", "クイズ好き", "初心者さん", "誕生日おめでとう", "Ball & Soul"]
     samples = []
     
     for i in range(10):
@@ -241,6 +186,16 @@ def check_achievements(username, score, total):
     # 愛の完全主義者（全問正解）
     if score == total:
         earned.append(ACHIEVEMENTS[7])
+    
+    # 特別な誕生日アチーブメント（ユーザー名に「誕生日」が含まれる場合）
+    if '誕生日' in username:
+        # カスタムアチーブメントを作成
+        birthday_achievement = {
+            "title": "Happy Birthday!",
+            "description": "誕生日に愛の哲学を探求する特別な人",
+            "icon": "🎂"
+        }
+        earned.append(birthday_achievement)
     
     return earned
 
