@@ -21,6 +21,57 @@ let hintModal;
 let shareModal;
 let adminModal;
 
+// グローバルスコープで公開する関数
+window.startChapter = function(chapterTitle) {
+    // 選択された章のクイズだけをフィルタリング
+    const filteredQuizData = quizData.filter(q => q.chapter === chapterTitle);
+    
+    if (filteredQuizData.length === 0) {
+        alert('この章のクイズがありません。');
+        return;
+    }
+    
+    // クイズの開始インデックスを設定
+    currentQuestion = quizData.findIndex(q => q.id === filteredQuizData[0].id);
+    
+    // ユーザー名を取得
+    userName = document.getElementById('username').value || 'ゲスト';
+    
+    // モード選択の取得
+    const modeInputs = document.querySelectorAll('input[name="quiz-mode"]');
+    modeInputs.forEach(input => {
+        if (input.checked) {
+            quizMode = input.value;
+        }
+    });
+    
+    // モードに応じたタイマー設定
+    switch (quizMode) {
+        case 'challenge':
+            timeLimit = 30;
+            break;
+        case 'relax':
+            timeLimit = 0;
+            break;
+        default:
+            timeLimit = 45;
+    }
+    
+    // 変数の初期化
+    score = 0;
+    answeredQuestions = 0;
+    lastChapter = "";
+    completedChapters.clear();
+    userAnswers = [];
+    
+    // ウェルカム画面を隠してクイズ画面を表示
+    document.getElementById('welcome-screen').classList.add('d-none');
+    document.getElementById('quiz-container').classList.remove('d-none');
+    
+    // 最初の問題を表示
+    showQuestion();
+};
+
 // DOMが読み込まれたら初期化
 document.addEventListener('DOMContentLoaded', () => {
     // モーダルの初期化
@@ -96,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // SNSシェアボタン
     document.getElementById('share-twitter').addEventListener('click', () => {
         const text = encodeURIComponent(document.getElementById('share-text').value);
-        window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+        window.open(`https://twitter.com/intent/tweet?text=${text}&hashtags=誕生日,愛の哲学`, '_blank');
     });
     
     document.getElementById('share-facebook').addEventListener('click', () => {
@@ -127,202 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ダークモードトグルボタンを追加
     addDarkModeToggle();
+    
+    // 章選択ボタンのイベントリスナー追加
+    const chapterButtons = document.querySelectorAll('.start-chapter');
+    if (chapterButtons) {
+        chapterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const chapterTitle = this.getAttribute('data-chapter');
+                if (chapterTitle) {
+                    window.startChapter(chapterTitle);
+                }
+            });
+        });
+    }
 });
-
-// 管理者パスワードの検証
-function verifyAdminPassword(password) {
-    // 実際のアプリではハッシュ化したパスワードを使用するべきです
-    // ここでは単純な例として固定のパスワードを使用します
-    return password === "loveadmin123"; // このパスワードは実際のアプリでは変更してください
-}
-
-// 管理者パネルの読み込み
-function loadAdminPanel() {
-    // 現在の画面を隠す
-    document.getElementById('welcome-screen').classList.add('d-none');
-    document.getElementById('quiz-container').classList.add('d-none');
-    document.getElementById('results-screen').classList.add('d-none');
-    document.getElementById('break-screen').classList.add('d-none');
-    
-    // 管理者パネルがまだ存在しない場合は作成
-    if (!document.getElementById('admin-panel')) {
-        const adminPanel = document.createElement('div');
-        adminPanel.id = 'admin-panel';
-        adminPanel.className = 'container mt-5';
-        
-        adminPanel.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>管理者パネル</h1>
-                <button id="admin-back-button" class="btn btn-outline-secondary">戻る</button>
-            </div>
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">回答結果一覧</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="admin-results-table">
-                            <thead>
-                                <tr>
-                                    <th>名前</th>
-                                    <th>スコア</th>
-                                    <th>日時</th>
-                                    <th>詳細</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- 結果データがここに表示される -->
-                                <tr>
-                                    <td colspan="4" class="text-center">データを読み込み中...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card mb-4 d-none" id="admin-details-container">
-                <div class="card-header">
-                    <h5 class="mb-0">詳細回答データ</h5>
-                </div>
-                <div class="card-body" id="admin-details-content">
-                    <!-- 詳細データがここに表示される -->
-                </div>
-            </div>
-        `;
-        
-        document.querySelector('.container').parentNode.appendChild(adminPanel);
-        
-        // 戻るボタンのイベントリスナー
-        document.getElementById('admin-back-button').addEventListener('click', () => {
-            document.getElementById('admin-panel').classList.add('d-none');
-            showWelcomeScreen();
-        });
-    } else {
-        document.getElementById('admin-panel').classList.remove('d-none');
-    }
-    
-    // 結果データを取得して表示
-    fetchAllResults();
-}
-
-// すべての結果データを取得
-function fetchAllResults() {
-    fetch('/admin/get_all_results', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ password: "loveadmin123" }) // セキュリティのため実際のアプリでは改善が必要
-    })
-    .then(response => response.json())
-    .then(data => {
-        displayAdminResults(data);
-    })
-    .catch(error => {
-        console.error('Error fetching admin results:', error);
-        document.querySelector('#admin-results-table tbody').innerHTML = 
-            '<tr><td colspan="4" class="text-center text-danger">データの取得に失敗しました</td></tr>';
-    });
-}
-
-// 管理者パネルに結果を表示
-function displayAdminResults(results) {
-    const tbody = document.querySelector('#admin-results-table tbody');
-    tbody.innerHTML = '';
-    
-    if (results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">まだデータがありません</td></tr>';
-        return;
-    }
-    
-    // 結果を日付の新しい順にソート
-    const sortedResults = [...results].sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    sortedResults.forEach((result, index) => {
-        const row = document.createElement('tr');
-        
-        row.innerHTML = `
-            <td>${result.username}</td>
-            <td>${result.score}/${result.total} (${result.percentage}%)</td>
-            <td>${formatDate(result.date)}</td>
-            <td>
-                <button class="btn btn-sm btn-info view-details-button" data-result-id="${index}">詳細</button>
-            </td>
-        `;
-        
-        tbody.appendChild(row);
-    });
-    
-    // 詳細ボタンのイベントリスナーを追加
-    document.querySelectorAll('.view-details-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const resultId = e.target.getAttribute('data-result-id');
-            displayAdminResultDetails(sortedResults[resultId]);
-        });
-    });
-}
-
-// 管理者パネルに詳細結果を表示
-function displayAdminResultDetails(result) {
-    const detailsContainer = document.getElementById('admin-details-container');
-    const detailsContent = document.getElementById('admin-details-content');
-    
-    detailsContainer.classList.remove('d-none');
-    
-    // 基本情報の表示
-    let detailsHTML = `
-        <h4>${result.username}の回答詳細</h4>
-        <p>日時: ${formatDate(result.date)}</p>
-        <p>スコア: ${result.score}/${result.total} (${result.percentage}%)</p>
-        <hr>
-    `;
-    
-    // 詳細な回答データがある場合
-    if (result.answers && result.answers.length > 0) {
-        detailsHTML += `
-            <h5>問題ごとの回答</h5>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>問題</th>
-                            <th>回答</th>
-                            <th>正解</th>
-                            <th>結果</th>
-                            <th>ヒント使用</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
-        result.answers.forEach(answer => {
-            detailsHTML += `
-                <tr>
-                    <td>Q${answer.questionId}</td>
-                    <td>${answer.userAnswer}</td>
-                    <td>${answer.correctAnswer}</td>
-                    <td>${answer.isCorrect ? '<span class="text-success">正解</span>' : '<span class="text-danger">不正解</span>'}</td>
-                    <td>${answer.usedHint ? 'あり' : 'なし'}</td>
-                </tr>
-            `;
-        });
-        
-        detailsHTML += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-    } else {
-        detailsHTML += `<p class="text-muted">詳細な回答データはありません。</p>`;
-    }
-    
-    detailsContent.innerHTML = detailsHTML;
-    
-    // ページをスクロールして詳細を表示
-    detailsContainer.scrollIntoView({ behavior: 'smooth' });
-}
 
 // クイズスタート
 function startQuiz() {
@@ -377,6 +246,12 @@ function showQuestion() {
     // 章情報の表示
     document.getElementById('chapter-title').textContent = q.chapter;
     document.getElementById('chapter-subtitle').textContent = q.chapter_subtitle;
+    
+    // チャプターバッジを更新
+    const chapterBadge = document.getElementById('chapter-badge');
+    if (chapterBadge) {
+        chapterBadge.textContent = q.chapter;
+    }
     
     // 問題テキストの表示
     document.getElementById('question-text').textContent = `Q${q.id}: ${q.question}`;
@@ -564,7 +439,14 @@ function handleAnswer(selected, q) {
             score += 0.5;
         }
     } else {
-        explanationText = `❌ 不正解。\n正解は ${q.answer}: ${q.choices[q.answer]}。\n\n${q.answer_explanation}\n\nあなたの選んだ ${selected}: ${q.choices[selected]} → ${q.wrong_explanations[selected]}`;
+        explanationText = `❌ 不正解。\n正解は ${q.answer}: ${q.choices[q.answer]}。\n\n${q.answer_explanation}\n\n`;
+        
+        // 誤答解説がある場合のみ追加する
+        if (q.wrong_explanations && q.wrong_explanations[selected]) {
+            explanationText += `あなたの選んだ ${selected}: ${q.choices[selected]} → ${q.wrong_explanations[selected]}`;
+        } else {
+            explanationText += `あなたの選んだ ${selected}: ${q.choices[selected]}`;
+        }
     }
     
     explanationDiv.textContent = explanationText;
@@ -713,7 +595,21 @@ function showCompletion() {
     } else {
         message = '愛の探求はこれからです。もう一度挑戦してみましょう。';
     }
-    document.getElementById('performance-message').textContent = message;
+    
+    // 誕生日メッセージを追加
+    let birthdayMessage = "";
+    if (percentage >= 90) {
+        birthdayMessage = "素晴らしい誕生日プレゼントになりました！あなたは愛の達人です！";
+    } else if (percentage >= 70) {
+        birthdayMessage = "誕生日おめでとう！愛の道をしっかり歩んでいますね。";
+    } else if (percentage >= 50) {
+        birthdayMessage = "お誕生日を記念して、もう少し愛について考えてみましょう。";
+    } else {
+        birthdayMessage = "誕生日だからこそ、愛の探求を一緒に始めましょう。";
+    }
+    
+    document.getElementById('performance-message').innerHTML = 
+        message + "<br><strong>" + birthdayMessage + "</strong>";
     
     // 詳細結果の表示
     showDetailedResults();
@@ -726,6 +622,15 @@ function showCompletion() {
     
     // 結果を保存
     saveResults(roundedScore);
+    
+    // 紙吹雪を表示（confetti.jsがある場合）
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
 }
 
 // 詳細結果の表示
@@ -966,8 +871,8 @@ function prepareShareContent() {
     const roundedScore = Math.round(score * 10) / 10;
     const percentage = Math.round((roundedScore / quizData.length) * 100);
     
-    let shareText = `「愛のクイズ」で${userName}が${percentage}%のスコアを獲得しました！`;
-    shareText += ' #愛のクイズ';
+    // 誕生日バージョンのシェアテキスト
+    let shareText = `🎂誕生日特別版🎂「Ball & Soul - 愛の思索ゲーム」で${userName}が${percentage}%のスコアを獲得しました！ #愛の哲学 #誕生日クイズ`;
     
     document.getElementById('share-text').value = shareText;
 }
@@ -1033,6 +938,201 @@ function formatDate(dateString) {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+// 管理者パスワードの検証
+function verifyAdminPassword(password) {
+    // 実際のアプリではハッシュ化したパスワードを使用するべきです
+    // ここでは単純な例として固定のパスワードを使用します
+    return password === "loveadmin123"; // このパスワードは実際のアプリでは変更してください
+}
+
+// 管理者パネルの読み込み
+function loadAdminPanel() {
+    // 現在の画面を隠す
+    document.getElementById('welcome-screen').classList.add('d-none');
+    document.getElementById('quiz-container').classList.add('d-none');
+    document.getElementById('results-screen').classList.add('d-none');
+    document.getElementById('break-screen').classList.add('d-none');
+    
+    // 管理者パネルがまだ存在しない場合は作成
+    if (!document.getElementById('admin-panel')) {
+        const adminPanel = document.createElement('div');
+        adminPanel.id = 'admin-panel';
+        adminPanel.className = 'container mt-5';
+        
+        adminPanel.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>管理者パネル</h1>
+                <button id="admin-back-button" class="btn btn-outline-secondary">戻る</button>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">回答結果一覧</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="admin-results-table">
+                            <thead>
+                                <tr>
+                                    <th>名前</th>
+                                    <th>スコア</th>
+                                    <th>日時</th>
+                                    <th>詳細</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 結果データがここに表示される -->
+                                <tr>
+                                    <td colspan="4" class="text-center">データを読み込み中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4 d-none" id="admin-details-container">
+                <div class="card-header">
+                    <h5 class="mb-0">詳細回答データ</h5>
+                </div>
+                <div class="card-body" id="admin-details-content">
+                    <!-- 詳細データがここに表示される -->
+                </div>
+            </div>
+        `;
+        
+        document.querySelector('.container').parentNode.appendChild(adminPanel);
+        
+        // 戻るボタンのイベントリスナー
+        document.getElementById('admin-back-button').addEventListener('click', () => {
+            document.getElementById('admin-panel').classList.add('d-none');
+            showWelcomeScreen();
+        });
+    } else {
+        document.getElementById('admin-panel').classList.remove('d-none');
+    }
+    
+    // 結果データを取得して表示
+    fetchAllResults();
+}
+
+// すべての結果データを取得
+function fetchAllResults() {
+    fetch('/admin/get_all_results', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: "loveadmin123" }) // セキュリティのため実際のアプリでは改善が必要
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayAdminResults(data);
+    })
+    .catch(error => {
+        console.error('Error fetching admin results:', error);
+        document.querySelector('#admin-results-table tbody').innerHTML = 
+            '<tr><td colspan="4" class="text-center text-danger">データの取得に失敗しました</td></tr>';
+    });
+}
+
+// 管理者パネルに結果を表示
+function displayAdminResults(results) {
+    const tbody = document.querySelector('#admin-results-table tbody');
+    tbody.innerHTML = '';
+    
+    if (results.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">まだデータがありません</td></tr>';
+        return;
+    }
+    
+    // 結果を日付の新しい順にソート
+    const sortedResults = [...results].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    sortedResults.forEach((result, index) => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td>${result.username}</td>
+            <td>${result.score}/${result.total} (${result.percentage}%)</td>
+            <td>${formatDate(result.date)}</td>
+            <td>
+                <button class="btn btn-sm btn-info view-details-button" data-result-id="${index}">詳細</button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    // 詳細ボタンのイベントリスナーを追加
+    document.querySelectorAll('.view-details-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const resultId = e.target.getAttribute('data-result-id');
+            displayAdminResultDetails(sortedResults[resultId]);
+        });
+    });
+}
+
+// 管理者パネルに詳細結果を表示
+function displayAdminResultDetails(result) {
+    const detailsContainer = document.getElementById('admin-details-container');
+    const detailsContent = document.getElementById('admin-details-content');
+    
+    detailsContainer.classList.remove('d-none');
+    
+    // 基本情報の表示
+    let detailsHTML = `
+        <h4>${result.username}の回答詳細</h4>
+        <p>日時: ${formatDate(result.date)}</p>
+        <p>スコア: ${result.score}/${result.total} (${result.percentage}%)</p>
+        <hr>
+    `;
+    
+    // 詳細な回答データがある場合
+    if (result.answers && result.answers.length > 0) {
+        detailsHTML += `
+            <h5>問題ごとの回答</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>問題</th>
+                            <th>回答</th>
+                            <th>正解</th>
+                            <th>結果</th>
+                            <th>ヒント使用</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        result.answers.forEach(answer => {
+            detailsHTML += `
+                <tr>
+                    <td>Q${answer.questionId}</td>
+                    <td>${answer.userAnswer}</td>
+                    <td>${answer.correctAnswer}</td>
+                    <td>${answer.isCorrect ? '<span class="text-success">正解</span>' : '<span class="text-danger">不正解</span>'}</td>
+                    <td>${answer.usedHint ? 'あり' : 'なし'}</td>
+                </tr>
+            `;
+        });
+        
+        detailsHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        detailsHTML += `<p class="text-muted">詳細な回答データはありません。</p>`;
+    }
+    
+    detailsContent.innerHTML = detailsHTML;
+    
+    // ページをスクロールして詳細を表示
+    detailsContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
 // ダークモードトグルボタンを追加
 function addDarkModeToggle() {
     // ダークモードの状態
@@ -1071,78 +1171,6 @@ function addDarkModeToggle() {
     // ボディに追加
     document.body.appendChild(toggleButton);
 }
-
-// キーボードショートカットのイベントリスナー
-document.addEventListener('keydown', (event) => {
-    // 現在表示されている画面によって処理を分ける
-    
-    // ウェルカム画面の場合
-    if (!document.getElementById('welcome-screen').classList.contains('d-none')) {
-        // Enterキーでクイズスタート
-        if (event.key === 'Enter') {
-            startQuiz();
-        }
-    }
-    // クイズ画面の場合
-    else if (!document.getElementById('quiz-container').classList.contains('d-none')) {
-        // 次へボタンが表示されている場合
-        if (!document.getElementById('next-button').classList.contains('d-none')) {
-            // Enterキーまたはスペースキーで次の問題へ
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault(); // スクロールを防止
-                nextQuestion();
-            }
-        }
-        // 問題回答中の場合
-        else {
-            // A,B,C,Dキーで選択肢を選択
-            const choicesButtons = document.querySelectorAll('#choices button');
-            if (choicesButtons.length > 0 && !choicesButtons[0].disabled) {
-                if (event.key === 'a' || event.key === 'A') {
-                    choicesButtons[0].click();
-                } else if (event.key === 'b' || event.key === 'B' && choicesButtons.length > 1) {
-                    choicesButtons[1].click();
-                } else if (event.key === 'c' || event.key === 'C' && choicesButtons.length > 2) {
-                    choicesButtons[2].click();
-                } else if (event.key === 'd' || event.key === 'D' && choicesButtons.length > 3) {
-                    choicesButtons[3].click();
-                }
-                // Hキーでヒント表示
-                else if (event.key === 'h' || event.key === 'H') {
-                    showHint();
-                }
-            }
-        }
-    }
-    // 休憩画面の場合
-    else if (!document.getElementById('break-screen').classList.contains('d-none')) {
-        // 続けるボタンが表示されている場合
-        if (!document.getElementById('continue-button').classList.contains('d-none')) {
-            // Enterキーまたはスペースキーで続ける
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault(); // スクロールを防止
-                document.getElementById('continue-button').click();
-            }
-        }
-    }
-    // 結果画面の場合
-    else if (!document.getElementById('results-screen').classList.contains('d-none')) {
-        // Rキーでリスタート
-        if (event.key === 'r' || event.key === 'R') {
-            restartQuiz();
-        }
-        // Hキーでホームに戻る
-        else if (event.key === 'h' || event.key === 'H') {
-            resetQuiz();
-            showWelcomeScreen();
-        }
-        // Sキーでシェア
-        else if (event.key === 's' || event.key === 'S') {
-            prepareShareContent();
-            shareModal.show();
-        }
-    }
-});
 
 // 音声効果の追加
 function playSound(type) {
@@ -1224,6 +1252,78 @@ function showToast(message, type = 'info') {
     });
 }
 
+// キーボードショートカットのイベントリスナー
+document.addEventListener('keydown', (event) => {
+    // 現在表示されている画面によって処理を分ける
+    
+    // ウェルカム画面の場合
+    if (!document.getElementById('welcome-screen').classList.contains('d-none')) {
+        // Enterキーでクイズスタート
+        if (event.key === 'Enter') {
+            startQuiz();
+        }
+    }
+    // クイズ画面の場合
+    else if (!document.getElementById('quiz-container').classList.contains('d-none')) {
+        // 次へボタンが表示されている場合
+        if (!document.getElementById('next-button').classList.contains('d-none')) {
+            // Enterキーまたはスペースキーで次の問題へ
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault(); // スクロールを防止
+                nextQuestion();
+            }
+        }
+        // 問題回答中の場合
+        else {
+            // A,B,C,Dキーで選択肢を選択
+            const choicesButtons = document.querySelectorAll('#choices button');
+            if (choicesButtons.length > 0 && !choicesButtons[0].disabled) {
+                if (event.key === 'a' || event.key === 'A') {
+                    choicesButtons[0].click();
+                } else if (event.key === 'b' || event.key === 'B' && choicesButtons.length > 1) {
+                    choicesButtons[1].click();
+                } else if (event.key === 'c' || event.key === 'C' && choicesButtons.length > 2) {
+                    choicesButtons[2].click();
+                } else if (event.key === 'd' || event.key === 'D' && choicesButtons.length > 3) {
+                    choicesButtons[3].click();
+                }
+                // Hキーでヒント表示
+                else if (event.key === 'h' || event.key === 'H') {
+                    showHint();
+                }
+            }
+        }
+    }
+    // 休憩画面の場合
+    else if (!document.getElementById('break-screen').classList.contains('d-none')) {
+        // 続けるボタンが表示されている場合
+        if (!document.getElementById('continue-button').classList.contains('d-none')) {
+            // Enterキーまたはスペースキーで続ける
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault(); // スクロールを防止
+                document.getElementById('continue-button').click();
+            }
+        }
+    }
+    // 結果画面の場合
+    else if (!document.getElementById('results-screen').classList.contains('d-none')) {
+        // Rキーでリスタート
+        if (event.key === 'r' || event.key === 'R') {
+            restartQuiz();
+        }
+        // Hキーでホームに戻る
+        else if (event.key === 'h' || event.key === 'H') {
+            resetQuiz();
+            showWelcomeScreen();
+        }
+        // Sキーでシェア
+        else if (event.key === 's' || event.key === 'S') {
+            prepareShareContent();
+            shareModal.show();
+        }
+    }
+});
+
 // 初回訪問かどうかを確認してチュートリアルを表示
 function checkFirstVisit() {
     if (!localStorage.getItem('hasVisited')) {
@@ -1241,7 +1341,7 @@ function showTutorial() {
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">愛のクイズへようこそ！</h5>
+                        <h5 class="modal-title">Ball & Soul - 愛の思索ゲームへようこそ！</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -1250,7 +1350,7 @@ function showTutorial() {
                                 <div class="carousel-item active">
                                     <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
                                         <div class="text-center p-4">
-                                            <h4>愛のクイズとは？</h4>
+                                            <h4>愛の思索ゲームとは？</h4>
                                             <p>哲学的な「愛」について考えながら学べるクイズアプリです。</p>
                                             <p>深遠な問いに向き合い、自分自身と向き合うきっかけになるでしょう。</p>
                                         </div>

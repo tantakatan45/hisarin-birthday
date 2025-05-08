@@ -3,20 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>愛のクイズ</title>
+    <title>Ball & Soul - 愛の思索ゲーム</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fontsの追加 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 追加のスタイル */
+        body {
+            font-family: 'Noto Serif JP', serif;
+            background-color: #f8f9fa;
+            background-image: url('{{ url_for("static", filename="images/subtle-pattern.png") }}');
+        }
+        
+        .title-font {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-weight: 700;
+        }
+        
+        .birthday-banner {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .birthday-banner::before {
+            content: "🎉";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+        }
+        
+        .birthday-banner::after {
+            content: "🎂";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+        }
+        
+        .welcome-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .welcome-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .welcome-card-header {
+            background: linear-gradient(45deg, #7957d5, #a88beb);
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+        }
+        
+        .btn-custom {
+            background: linear-gradient(45deg, #7957d5, #a88beb);
+            border: none;
+            border-radius: 30px;
+            padding: 12px 30px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(121, 87, 213, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(121, 87, 213, 0.6);
+            color: white;
+        }
+        
+        .funny-subtitle {
+            font-style: italic;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        /* アニメーション用クラス */
+        .float-animation {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .chapter-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #7957d5;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
         <!-- ウェルカム画面 -->
         <div id="welcome-screen" class="text-center animate__animated animate__fadeIn">
-            <h1 class="display-4 mb-4">愛のクイズへようこそ</h1>
-            <p class="lead">哲学的な「愛」について考えながら学べるクイズです。</p>
+            <!-- 誕生日バナー -->
+            <div class="birthday-banner animate__animated animate__fadeInDown">
+                <h2 class="m-0">🎂 お誕生日おめでとう！ 🎂</h2>
+            </div>
             
-            <div class="card mb-4 mx-auto" style="max-width: 500px;">
+            <h1 class="display-4 mb-3 title-font">Ball & Soul</h1>
+            <h3 class="mb-4">愛の思索ゲーム</h3>
+            
+            <!-- ユーモラスなサブタイトル -->
+            <p class="funny-subtitle">いつも愛だ恋だうるさいあなたに、哲学的な一撃を。</p>
+            
+            <div class="welcome-card mb-4 mx-auto" style="max-width: 500px;">
+                <div class="welcome-card-header">
+                    <h4 class="mb-0">愛について、本当にわかってる？</h4>
+                </div>
                 <div class="card-body">
+                    <p>ビリヤードから人間関係まで、あなたの「愛」の理解度をテストします。各章をクリアして、真の愛の達人になりましょう。</p>
+                    
                     <div class="form-group mb-3">
                         <label for="username" class="form-label">あなたの名前：</label>
                         <input type="text" id="username" class="form-control" placeholder="名前を入力（任意）">
@@ -40,9 +161,49 @@
                 </div>
             </div>
             
-            <button id="start-button" class="btn btn-lg btn-primary animate__animated animate__pulse animate__infinite">クイズを始める</button>
+            <!-- 章選択セクション（新規追加） -->
+            <div class="chapters-container mb-4">
+                <h4 class="mb-3">クイズの章を選択</h4>
+                <div class="d-flex flex-wrap justify-content-center gap-2" id="chapter-selection">
+                    <div class="card chapter-card" style="width: 220px;">
+                        <div class="card-body text-center">
+                            <span class="chapter-badge">第1章</span>
+                            <h5 class="card-title">この場を愛せないなら、誰も愛せない</h5>
+                            <p class="card-text small">ビリヤード場から学ぶ関係性の基本</p>
+                            <button class="btn btn-sm btn-outline-primary start-chapter" data-chapter="第1章">この章を始める</button>
+                        </div>
+                    </div>
+                    <div class="card chapter-card" style="width: 220px;">
+                        <div class="card-body text-center">
+                            <span class="chapter-badge">第2章</span>
+                            <h5 class="card-title">愛とは、勝っても負けても離れないこと</h5>
+                            <p class="card-text small">勝負を超えた愛の形</p>
+                            <button class="btn btn-sm btn-outline-primary start-chapter" data-chapter="第2章">この章を始める</button>
+                        </div>
+                    </div>
+                    <div class="card chapter-card" style="width: 220px;">
+                        <div class="card-body text-center">
+                            <span class="chapter-badge">第3章</span>
+                            <h5 class="card-title">自分を抱きしめる覚悟、できてる？</h5>
+                            <p class="card-text small">セルフラブの真髄</p>
+                            <button class="btn btn-sm btn-outline-primary start-chapter" data-chapter="第3章">この章を始める</button>
+                        </div>
+                    </div>
+                    <div class="card chapter-card" style="width: 220px;">
+                        <div class="card-body text-center">
+                            <span class="chapter-badge">第4章</span>
+                            <h5 class="card-title">愛される準備、できてますか？</h5>
+                            <p class="card-text small">恋愛のこころ理論</p>
+                            <button class="btn btn-sm btn-outline-primary start-chapter" data-chapter="第4章">この章を始める</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <div class="mt-5">
+            <button id="start-button" class="btn-custom animate__animated animate__pulse animate__infinite float-animation">全問挑戦する</button>
+            
+            <div class="mt-4">
+                <p class="text-muted small">このクイズはあなたの誕生日を記念して特別に作られました</p>
                 <button id="admin-button" class="btn btn-sm btn-outline-secondary">管理者用</button>
             </div>
         </div>
@@ -50,11 +211,11 @@
         <!-- クイズコンテナ -->
         <div id="quiz-container" class="mb-4 d-none">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1 class="text-center">愛のクイズ</h1>
+                <h1 class="title-font">Ball & Soul</h1>
                 <div id="progress-container" class="text-end">
                     <span id="progress-text"></span>
                     <div class="progress" style="height: 10px; width: 200px;">
-                        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        <div id="progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
@@ -62,12 +223,17 @@
             <div id="timer" class="alert alert-warning mt-2 mb-3"></div>
             
             <div id="chapter-info" class="mb-3">
-                <h4 id="chapter-title"></h4>
+                <span class="chapter-badge" id="chapter-badge"></span>
+                <h4 id="chapter-title" class="title-font"></h4>
                 <h5 id="chapter-subtitle" class="text-muted"></h5>
             </div>
             
-            <p id="question-text" class="mt-3 fs-5"></p>
-            <div id="choices" class="mt-3"></div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p id="question-text" class="mt-3 fs-5"></p>
+                    <div id="choices" class="mt-3"></div>
+                </div>
+            </div>
             
             <div class="mt-3">
                 <button id="hint-button" class="btn btn-sm btn-outline-info">ヒントを見る</button>
@@ -77,11 +243,11 @@
         
         <!-- 解説 -->
         <div id="explanation" class="alert alert-info d-none"></div>
-        <button id="next-button" class="btn btn-primary d-none">次の問題へ</button>
+        <button id="next-button" class="btn btn-custom d-none">次の問題へ</button>
         
         <!-- 章間休憩画面 -->
         <div id="break-screen" class="text-center my-5 d-none">
-            <h2 id="break-chapter" class="mb-4"></h2>
+            <h2 id="break-chapter" class="mb-4 title-font"></h2>
             <p class="lead mb-4">少し休憩して、次の章に備えましょう。</p>
             
             <div class="card mb-4 mx-auto" style="max-width: 600px;">
@@ -97,16 +263,22 @@
                 </div>
             </div>
             
-            <button id="continue-button" class="btn btn-success mt-3 d-none">続ける</button>
+            <button id="continue-button" class="btn btn-custom mt-3 d-none">続ける</button>
         </div>
         
         <!-- 結果画面 -->
         <div id="results-screen" class="text-center d-none">
-            <h2 class="mb-4 animate__animated animate__fadeIn">クイズ結果</h2>
+            <!-- 誕生日バナー再表示 -->
+            <div class="birthday-banner animate__animated animate__fadeInDown">
+                <h2 class="m-0">🎂 お誕生日おめでとう！ 🎂</h2>
+            </div>
+            
+            <h2 class="mb-4 animate__animated animate__fadeIn title-font">クイズ結果</h2>
             
             <div id="score-display" class="alert alert-success p-4 animate__animated animate__fadeIn">
                 <h3 id="final-score"></h3>
                 <p id="performance-message"></p>
+                <p class="mt-3">これがあなたの「愛の理解度」です。<br>もっと深く学びたい場合は、再挑戦してみましょう！</p>
             </div>
             
             <div id="achievements-container" class="mb-4 d-none">
@@ -121,7 +293,7 @@
             </div>
             
             <div class="mb-4">
-                <button id="restart-button" class="btn btn-primary me-2">もう一度挑戦</button>
+                <button id="restart-button" class="btn btn-custom me-2">もう一度挑戦</button>
                 <button id="share-button" class="btn btn-info">結果をシェア</button>
                 <button id="home-button" class="btn btn-secondary ms-2">ホームに戻る</button>
             </div>
@@ -142,6 +314,15 @@
                             <!-- ランキングデータがここに表示される -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+            
+            <!-- 誕生日メッセージ追加 -->
+            <div class="card mt-5 mb-3">
+                <div class="card-body">
+                    <h4 class="card-title">特別なメッセージ</h4>
+                    <p class="card-text">いつも愛だ恋だうるさいあなたへ、このクイズが少しでも楽しい誕生日の思い出になりますように。<br>
+                    あなたの情熱と深い思考力はいつも刺激的です。これからもその哲学的な愛の探求を続けてください！</p>
                 </div>
             </div>
         </div>
@@ -239,5 +420,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- 章選択機能用のスクリプト（追加） -->
+    <script>
+        // 章選択ボタンのイベントリスナー
+        document.addEventListener('DOMContentLoaded', function() {
+            const chapterButtons = document.querySelectorAll('.start-chapter');
+            
+            chapterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const chapterTitle = this.getAttribute('data-chapter');
+                    startSpecificChapter(chapterTitle);
+                });
+            });
+            
+            function startSpecificChapter(chapterTitle) {
+                // この関数はmain.jsに実装する必要がある
+                // 既存の関数を活用して特定の章からクイズを開始
+                if (typeof window.startChapter === 'function') {
+                    window.startChapter(chapterTitle);
+                } else {
+                    console.error('startChapter関数が見つかりません。main.jsを確認してください。');
+                    alert('特定の章から開始する機能は現在利用できません。');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
